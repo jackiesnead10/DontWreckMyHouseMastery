@@ -1,0 +1,98 @@
+﻿Dont Wreck my House Planning Doc
+	DontWreckHouse
+		
+	DontWreckHouse.DAL (downlaod guest/host file)
+		GuestFileRepository : IGuestFileRepository
+			-_filename : string
+			- guest : list<guest>
+			+ GuestFileRespository(string fileName)
+		HostFileRepository : IHostFileRepository
+			-_filename : string
+			- host : list<host>
+			+ HostFileRespository(string fileName)
+			- load(): void
+			+ ReadHostEmail():List<Host> : List<Employee>
+			+ ReadByInt(int HostId) : Host
+		ReservationsFileRepository : IReservationsFileRepository 
+			+Add(Reservation reservation) : Reservation
+			+ViewByEmail(string) : List<Reservation> //Hosts Email
+			+ViewByLocation(string) : List<Reservation>
+			+Update(int id, Reservation reservation) : void
+			+Delete(int id) : void
+	DontWreckHouse.Core 
+		Host //ask about location
+			+id {get; set;} : int
+			+lastName {get; set;} : string
+			+email {get; set;} : string
+			+phone {get; set;} : string
+			+address {get; set;} : string
+			+city {get; set;} : string
+			+state {get; set;} : string
+			+postalCode {get; set;} : string
+			+standardRate {get; set;} : int
+			+weekendRate {get; set;} : int
+		Guest 
+			+guestId {get; set;} : int
+			+firstName {get; set;} : string
+			+lastName {get; set;} : string
+			+email {get; set;} : string
+			+phone {get; set;} : string
+			+state {get; set;} : string
+		Reservation
+			+id {get; set;} : int
+			+startDate {get; set;} : DateTime 
+			+endDate {get; set;} : DateTime
+			+guestId {get; set;} : string
+			+total {get; set;} : int
+		Result //ask about multiple results 
+			+Message : string
+			+Success : bool
+		IGuestFileRepository
+			+ViewByEmail(string) : List<Guest>
+			+Add(Guest guest) : List<Guest>
+		IHostFileRepository
+			+ViewByEmail(string) : List<Host>
+			+ViewByLocation(string) : List<Host>
+		IReservationsFileRepository 
+			+Add(Reservation reservation) : Reservation
+			+ViewByEmail(string) : List<Reservation>
+			+ViewByLocation(string) : List<Reservation>
+			+Update(int id, Reservation reservation) : void
+			+Delete(int id) : void
+		IReservationService
+			+Add(Reservation reservation) : Result
+			+ViewByEmail(string) : Result
+			+ViewByLocation(string) :Result
+			+Update(int id, Reservation reservation) : Result
+			+Delete(int id) : Result
+		ILogger
+			+Log(string log) : void
+		ConsoleLogger : ILogger
+			+ Log(string log) : void
+	DontWreckHouse.BLL
+		ReservationService : IReservationService
+			- repo : IReservationFileRepository
+		RerservationService(IReservationFileRepository repository)
+	DontWreckHouse.UI
+		ConsoleIO
+			+*Display(string message) : void
+			+*PromptUser(string message) : string
+			+*PromptUserDateTime(string message) : string
+			+*PromptBool(string message) : string
+			+*PromptHosteEmail(String message) : string
+			+*PromptGuestEmail(string message) : string
+ 		Program
+			*+Main(string[]args): void
+		NinjectContainer
+		View 
+			ConsoleIO
+		Controller
+			-_Service : IReservationService
+			Controller (IReservationService service)
+			+Run() : void
+			-ViewReservationsForHost() : void
+			-AddReservation() : void
+			-UpdateReservation() : void
+			-DeleteReseravation() : void
+		
+		
