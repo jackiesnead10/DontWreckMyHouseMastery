@@ -80,6 +80,7 @@ namespace DontWreckMyHouse.UI
             Result<Reservation> result = reservationService.AddGuestReservation(hostEmail, guestEmail, startDate, endDate);
             view.DisplayHeader("Summary");
             view.DisplayHeader("=========");
+            view.DisplayHeader("This is a GIT !!!!!!!!!!!!!!");
             if(result != null)
             {
                 consoleIO.PrintLine("Hooray, reservation made!");
@@ -93,6 +94,7 @@ namespace DontWreckMyHouse.UI
 
         }
         //  Result<Reservation> reservation = ReservationService.Add(Reservation);
+        //update reservation
     
         private void UpdateReservation()
         {

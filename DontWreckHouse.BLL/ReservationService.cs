@@ -69,13 +69,14 @@ namespace DontWreckHouse.BLL
 
         }
         //Validate and validate nulls
+        //find weekend and weekday cost
         private decimal FindTotalCost(Host host, DateTime startdate, DateTime enddate)
         {
             decimal total = 0.00M;
             DateTime track = startdate;
             while(track != enddate)
             {
-                if((startdate.DayOfWeek == DayOfWeek.Saturday) || (startdate.DayOfWeek == DayOfWeek.Sunday))
+                if((startdate.DayOfWeek == DayOfWeek.Friday) || (startdate.DayOfWeek == DayOfWeek.Saturday))
                 {
                     total += host.WeekendRate;
                 }
