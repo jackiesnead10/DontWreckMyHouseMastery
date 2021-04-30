@@ -93,6 +93,22 @@ namespace DontWreckMyHouse.UI
 
             return response;
         }
+        public bool ReadBool(string prompt)
+        {
+            while (true)
+            {
+                string input = ReadRequiredString(prompt).ToLower();
+                if (input == "y")
+                {
+                    return true;
+                }
+                else if (input == "n")
+                {
+                    return false;
+                }
+                PrintLine(INVALID_BOOL);
+            }
+        }
 
     }
 }

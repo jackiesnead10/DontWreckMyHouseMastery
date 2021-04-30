@@ -22,6 +22,7 @@ namespace DontWreckHouse.DAL
 
         public List<Reservation> ViewReservationsByHost(Host host)
         {
+            //file error below in var path
             var Reservations = new List<Reservation>();
             var path = Path.Combine(filePath, host.Id + ".csv");
             if (!File.Exists(path))

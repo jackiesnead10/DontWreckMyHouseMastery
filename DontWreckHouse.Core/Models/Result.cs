@@ -11,6 +11,7 @@ namespace DontWreckHouse.BLL
         private List<string> messages = new List<string>();
         public List<string> Messages => new List<string>(messages);
         public bool success => messages.Count == 0;
+        public Decimal addDecimalMess = new decimal();
 
         public void AddMessage(string message)
         {

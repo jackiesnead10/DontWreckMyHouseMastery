@@ -69,25 +69,59 @@ namespace DontWreckMyHouse.UI
         }
         private void AddReservation()
         {
+
+
+            //FIX THE VALIDATION, should probably be in consoleIO
             view.DisplayHeader(MainMenuOption.AddReservation.ToLabel());
-            string hostEmail = consoleIO.ReadRequiredString("Please Enter Host's email Address: ");
-            string guestEmail = consoleIO.ReadRequiredString("Please Enter Guest's email Address: ");
-            List<Reservation> reservations = reservationService.GetReservationsByEmail(hostEmail);
-            view.DisplayHostReservations(reservations);
-           
-            DateTime startDate = consoleIO.ReadDate("Start  (MM/dd/yyyy): " );
-            DateTime endDate = consoleIO.ReadDate("End  (MM/dd/yyyy): ");
-            Result<Reservation> result = reservationService.AddGuestReservation(hostEmail, guestEmail, startDate, endDate);
-            view.DisplayHeader("Summary");
-            view.DisplayHeader("=========");
-            view.DisplayHeader("This is a GIT !!!!!!!!!!!!!!");
-            if(result != null)
+            Host host = new Host();
+            Guest guest = new Guest();
+            do
             {
-                consoleIO.PrintLine("Hooray, reservation made!");
+                string hostEmail = consoleIO.ReadRequiredString("Please Enter Host's email Address: ");
+                host = reservationService.FindByEmail(hostEmail);
+                if (host == null)
+                {
+                    view.DisplayHeader("Host not found. Please enter valid email address.");
+                }
+                string guestEmail = consoleIO.ReadRequiredString("Please Enter Guest's email Address: ");
+                guest = reservationService.FindGuestByEmail(guestEmail);
+
+                if (guest == null)
+                {
+                    view.DisplayHeader("Guest not found. Please enter valid email address.");
+                }
+            } while (host == null || guest == null);
+            List<Reservation> reservations = reservationService.GetReservationsByEmail(host.Email);
+            view.DisplayHostReservations(reservations);
+
+            DateTime startDate = new DateTime();
+            DateTime endDate = new DateTime();
+            do
+            {
+                startDate = consoleIO.ReadDate("Start  (MM/dd/yyyy): ");
+                endDate = consoleIO.ReadDate("End  (MM/dd/yyyy): ");
+                if (startDate > endDate)
+                {
+                    view.DisplayHeader("End date cannot come before start date");
+                }
+            } while (startDate > endDate);
+            decimal total = reservationService.FindTotalCost(host, startDate, endDate);
+            
+            view.DisplayHeader("Summary");
+           // view.DisplayHeader("=========");
+            view.DisplayHeader("Start: " + startDate);
+            view.DisplayHeader("End: " + endDate);
+            view.DisplayHeader("Total " + total);
+            bool choice = consoleIO.ReadBool("Is this okay? [y/n] : ");
+           // result = reservationService.FindTotalCost();
+            if(choice == true)
+            {
+                consoleIO.PrintLine("Making Reservation....");
+                Result<Reservation> result = reservationService.AddGuestReservation(host, guest, startDate, endDate, total);
             }
             else
             {
-                consoleIO.PrintLine("Boo! reservation not made!");
+                consoleIO.PrintLine("Returning to the Main Menu.");
             }
 
 

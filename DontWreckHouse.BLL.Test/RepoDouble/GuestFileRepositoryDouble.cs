@@ -8,21 +8,35 @@ using System.Threading.Tasks;
 
 namespace DontWreckHouse.BLL.Test
 {
-    class GuestFileRepositoryDouble : IGuestFileRepository
+    public class GuestFileRepositoryDouble : IGuestFileRepository
     {
+
+        private readonly List<Guest> guest = new List<Guest>();
+
+        public GuestFileRepositoryDouble()
+        {
+            Guest guest = new Guest();
+            guest.GuestId = 1;
+            guest.FirstName = "ILean";
+            guest.LastName = "Boat";
+            guest.Email = "boat@boat.com";
+            guest.Phone = "909090909";
+            guest.State = "Texas";
+        }
         public Guest Add(Guest guest)
         {
-            throw new NotImplementedException();
+            
+            return guest;
         }
 
         public List<Guest> FindAll()
         {
-            throw new NotImplementedException();
+            return new List<Guest>(guest);
         }
 
         public Guest FindGuestById(int id)
         {
-            throw new NotImplementedException();
+            return FindAll().FirstOrDefault(i => i.GuestId == id);
         }
 
         public List<Guest> ViewByEmail(string email)

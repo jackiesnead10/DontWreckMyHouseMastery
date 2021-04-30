@@ -29,6 +29,11 @@ namespace DontWreckHouse.BLL
             return hostFileRepository.ViewByEmail(email);
 
         }
+        public Guest FindGuestByEmail(string email)
+        {
+            return guestFileRepository.ViewByEmail(email);
+
+        }
 
         public List<Reservation> GetReservationsByEmail(string email)
         {
@@ -39,9 +44,11 @@ namespace DontWreckHouse.BLL
 
         }
         //Make a feature for adding guest start and end date and return a total
-        public Result<Reservation> AddGuestReservation(string hostEmail, string guestEmail, DateTime startDate, DateTime endDate)
+        public Result<Reservation> AddGuestReservation(Host host, Guest guest, DateTime startDate, DateTime endDate, decimal total)
         {
-            List<Reservation> reservations = GetReservationsByEmail(hostEmail);
+          
+            List<Reservation> reservations = GetReservationsByEmail(host.Email);
+         
 
             foreach (Reservation r in reservations)
             {
@@ -58,35 +65,51 @@ namespace DontWreckHouse.BLL
                     return result;
                 }
             }
+           // reservation.GuestId = guestFileRepository.ViewByEmail(guestEmail).GuestId; exception thrown
+            //
             Reservation reservation = new Reservation();
             reservation.EndDate = endDate;
             reservation.StartDate = startDate;
-            reservation.GuestId = guestFileRepository.ViewByEmail(guestEmail).GuestId;
+            
+            reservation.GuestId = guest.GuestId;
 
-            Host host = hostFileRepository.ViewByEmail(hostEmail);
-            reservation.Total = FindTotalCost(host, startDate, endDate);
+            
+            reservation.Total = total;
+            Result<Reservation> resultval = Validate(reservation, host);
             return reservationFileRepository.Add(reservation, host);
 
         }
         //Validate and validate nulls
         //find weekend and weekday cost
-        private decimal FindTotalCost(Host host, DateTime startdate, DateTime enddate)
+        public decimal FindTotalCost(Host host, DateTime startdate, DateTime enddate)
         {
+           
+
             decimal total = 0.00M;
             DateTime track = startdate;
-            while(track != enddate)
-            {
-                if((startdate.DayOfWeek == DayOfWeek.Friday) || (startdate.DayOfWeek == DayOfWeek.Saturday))
+          //  do
+           // {
+                while (track != enddate)
                 {
-                    total += host.WeekendRate;
+                    if ((startdate.DayOfWeek == DayOfWeek.Friday) || (startdate.DayOfWeek == DayOfWeek.Saturday))
+                    {
+                        total += host.WeekendRate;
+                    }
+                    else
+                    {
+                        total += host.StandardRate;
+                    }
+                    track = track.AddDays(1);
                 }
-                else
-                {
-                    total += host.StandardRate;
-                }
-                track = track.AddDays(1);
-            }
+           
+
             return total;
+                  //  Result<Reservation> result = new Result<Reservation>();
+              //  result.AddMessage("Total: " + total);
+            
+
+
+           // } while ()
         }
         private Result<Reservation> Validate(Reservation reservation, Host host)
         {

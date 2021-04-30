@@ -11,7 +11,26 @@ namespace DontWreckHouse.BLL.Test
 {
     class ReservationRepositoryDouble : IReservationsFileRepository
     {
+        private readonly List<Reservation> reserervations = new List<Reservation>();
+        DateTime startDate = new DateTime(2020, 6, 26);
+        DateTime endDate = new DateTime(2020, 6, 29);
+
+        public ReservationRepositoryDouble()
+        {
+            Reservation reserv = new Reservation();
+            reserv.Id = 2;
+            reserv.StartDate = startDate;
+            reserv.EndDate = endDate;
+            reserv.GuestId = 3;
+            reserv.Total = 200;
+        }
         public Reservation Add(Reservation reservation)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public Result<Reservation> Add(Reservation reservation, Host host)
         {
             throw new NotImplementedException();
         }
