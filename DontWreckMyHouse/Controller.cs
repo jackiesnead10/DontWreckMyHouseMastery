@@ -15,11 +15,11 @@ namespace DontWreckMyHouse.UI
         private readonly View view;
         private ConsoleIO consoleIO;
         private readonly ReservationService reservationService;
-        public Controller (View view, ConsoleIO consoleIO, IGuestFileRepository guestFileRepository, IHostFileRepository hostFileRepository, IReservationsFileRepository reservationsFileRepository)
+        public Controller (IGuestFileRepository guestFileRepository, IHostFileRepository hostFileRepository, IReservationsFileRepository reservationsFileRepository, ILogger fileLogger)
         {
-            this.view = view;
-            this.consoleIO = consoleIO;
-            this.reservationService = new ReservationService(reservationsFileRepository, guestFileRepository, hostFileRepository);
+            this.consoleIO = new ConsoleIO();
+            this.reservationService = new ReservationService(reservationsFileRepository, guestFileRepository, hostFileRepository, fileLogger);
+            this.view = new View(consoleIO, reservationService);
         }
 
         public void Run()
@@ -73,24 +73,9 @@ namespace DontWreckMyHouse.UI
 
             //FIX THE VALIDATION, should probably be in consoleIO
             view.DisplayHeader(MainMenuOption.AddReservation.ToLabel());
-            Host host = new Host();
-            Guest guest = new Guest();
-            do
-            {
-                string hostEmail = consoleIO.ReadRequiredString("Please Enter Host's email Address: ");
-                host = reservationService.FindByEmail(hostEmail);
-                if (host == null)
-                {
-                    view.DisplayHeader("Host not found. Please enter valid email address.");
-                }
-                string guestEmail = consoleIO.ReadRequiredString("Please Enter Guest's email Address: ");
-                guest = reservationService.FindGuestByEmail(guestEmail);
-
-                if (guest == null)
-                {
-                    view.DisplayHeader("Guest not found. Please enter valid email address.");
-                }
-            } while (host == null || guest == null);
+            Host host = consoleIO.GetHost(reservationService);
+            Guest guest = consoleIO.GetGuest(reservationService);
+            
             List<Reservation> reservations = reservationService.GetReservationsByEmail(host.Email);
             view.DisplayHostReservations(reservations);
 
@@ -100,24 +85,33 @@ namespace DontWreckMyHouse.UI
             {
                 startDate = consoleIO.ReadDate("Start  (MM/dd/yyyy): ");
                 endDate = consoleIO.ReadDate("End  (MM/dd/yyyy): ");
-                if (startDate > endDate)
+                if (startDate >= endDate)
                 {
-                    view.DisplayHeader("End date cannot come before start date");
+                    view.DisplayHeader("End date cannot come before, or be the start date");
                 }
-            } while (startDate > endDate);
+            } while (startDate >= endDate);
             decimal total = reservationService.FindTotalCost(host, startDate, endDate);
             
             view.DisplayHeader("Summary");
-           // view.DisplayHeader("=========");
+           
             view.DisplayHeader("Start: " + startDate);
             view.DisplayHeader("End: " + endDate);
             view.DisplayHeader("Total " + total);
             bool choice = consoleIO.ReadBool("Is this okay? [y/n] : ");
-           // result = reservationService.FindTotalCost();
+          
             if(choice == true)
             {
                 consoleIO.PrintLine("Making Reservation....");
                 Result<Reservation> result = reservationService.AddGuestReservation(host, guest, startDate, endDate, total);
+
+                if(result.Messages.Count > 0)
+                {
+                    consoleIO.PrintLine("Error: Time slot is occupied by another guest, please try again with another time slot.");
+                }
+                else
+                {
+                    consoleIO.PrintLine("Success! Reservation has been made.");
+                }
             }
             else
             {
@@ -127,16 +121,94 @@ namespace DontWreckMyHouse.UI
 
 
         }
-        //  Result<Reservation> reservation = ReservationService.Add(Reservation);
+        
         //update reservation
     
         private void UpdateReservation()
         {
-        
+            view.DisplayHeader("Edit a reservation");
+
+            Guest guest = consoleIO.GetGuest(reservationService);
+            Host host = consoleIO.GetHost(reservationService);
+            List<Reservation> reservations = reservationService.GetReservationsByEmail(host.Email);
+            reservations = reservationService.HostHasGuestReservation(guest, reservations);
+
+            if(reservations.Count == 0)
+            {
+                consoleIO.PrintLine("Error: No reservations found for this guest.");
+                return;
+            }
+            view.PrintGuestReservations(guest, reservations);
+            int id = consoleIO.ReadId("Reservation ID Input: ", reservations);
+            
+            DateTime startDate = new DateTime();
+            DateTime endDate = new DateTime();
+            do
+            {
+                startDate = consoleIO.ReadDate("Start  (MM/dd/yyyy): ");
+                endDate = consoleIO.ReadDate("End  (MM/dd/yyyy): ");
+                if (startDate >= endDate)
+                {
+                    view.DisplayHeader("End date cannot come before, or be the start date");
+                }
+            } while (startDate >= endDate);
+            decimal total = reservationService.FindTotalCost(host, startDate, endDate);
+            view.DisplayHeader("Summary");
+            view.DisplayHeader("Start: " + startDate);
+            view.DisplayHeader("End: " + endDate);
+            view.DisplayHeader("Total " + total);
+            bool choice = consoleIO.ReadBool("Is this okay? [y/n] : ");
+            if (choice == true)
+            {
+                consoleIO.PrintLine("Updating Reservation....");
+                Reservation reservation = new Reservation();
+                reservation.Id = id;
+                reservation.StartDate = startDate;
+                reservation.EndDate = endDate;
+                reservation.Total = total;
+                Result<Reservation> result = reservationService.UpdateReservation(host, reservation, reservations);
+                if (result.success == true)
+                {
+                    consoleIO.PrintLine("Reservation " + id + " updated!");
+                }
+                else
+                {
+                    if (result.Messages.Count > 0)
+                    {
+                        consoleIO.PrintLine(result.Messages[0]);
+                    }
+                    else
+                    {
+                        consoleIO.PrintLine("Reservation could not be found.");
+                    }
+                }
+            }
+            else
+            {
+                consoleIO.PrintLine("Returning to the Main Menu.");
+            }
+
         }
         private void DeleteReservation()
         {
+            view.DisplayHeader("Cancel a Reservation");
+            
+           
+            Guest guest = consoleIO.GetGuest(reservationService);
+            Host host = consoleIO.GetHost(reservationService);
+            List<Reservation> reservations = reservationService.GetReservationsByEmail(host.Email);
+            view.PrintGuestReservations(guest, reservations);
+            int id = consoleIO.ReadInt("Reservation ID Input: ");
+            Result<Reservation> result = reservationService.DeleteReservation(id, host);
 
+            if(result.success == true)
+            {
+                consoleIO.PrintLine("Reservation " + id + " cancelled.");
+            }
+            else
+            {
+                consoleIO.PrintLine("Reservation could not be found.");
+            }
         }
     }
 

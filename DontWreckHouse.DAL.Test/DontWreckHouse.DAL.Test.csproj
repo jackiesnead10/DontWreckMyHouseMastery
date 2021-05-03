@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DontWreckHouse.BLL.Test\DontWreckHouse.BLL.Test.csproj" />
     <ProjectReference Include="..\DontWreckHouse.Core\DontWreckHouse.Core.csproj" />
     <ProjectReference Include="..\DontWreckHouse.DAL\DontWreckHouse.DAL.csproj" />
   </ItemGroup>

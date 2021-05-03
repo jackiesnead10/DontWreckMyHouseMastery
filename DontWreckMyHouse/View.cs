@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DontWreckHouse.BLL;
 using DontWreckHouse.Core.Models;
 
 namespace DontWreckMyHouse.UI
@@ -10,9 +11,11 @@ namespace DontWreckMyHouse.UI
     class View
     {
         private readonly ConsoleIO io;
-        public View(ConsoleIO io)
+         private ReservationService reservationService;
+        public View(ConsoleIO io, ReservationService reservationService)
         {
             this.io = io;
+            this.reservationService = reservationService;
         }
 
         public MainMenuOption SelectMainMenuOption()
@@ -70,12 +73,16 @@ namespace DontWreckMyHouse.UI
 
             foreach (Reservation res in reservations)
             {
+               // ReservationService reservation = new ReservationService();
+                Guest guest = reservationService.FindGuestById(res.GuestId);
                 io.PrintLine(
-                    string.Format("{0} {1} - {2}:{3} - Value: ${4:0.00}",
+                    string.Format("ID: {0}, {1} - {2}, Guest: {3}, {4}, Email:{5} - Total Cost: ${6:0.00}",
                         res.Id,
                         res.StartDate,
                         res.EndDate,
-                        res.GuestId,
+                        guest.LastName,
+                        guest.FirstName,
+                        guest.Email,
                         res.Total)
                 );
             }
@@ -96,8 +103,25 @@ namespace DontWreckMyHouse.UI
             return io.ReadDate("Start: ");
         }
         */
-        
-   
- 
+        public void PrintGuestReservations(Guest guest, List<Reservation> reservations)
+        {
+            foreach (Reservation r in reservations)
+            {
+               
+                    io.PrintLine(
+                    string.Format("ID: {0}, {1} - {2}, Guest: {3}, {4}, Email:{5} - Total Cost: ${6:0.00}",
+                        r.Id,
+                        r.StartDate,
+                        r.EndDate,
+                        guest.LastName,
+                        guest.FirstName,
+                        guest.Email,
+                        r.Total)
+                );
+                
+            }
+        }
+
+
     }
 }

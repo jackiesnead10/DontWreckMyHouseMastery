@@ -13,8 +13,8 @@ namespace DontWreckHouse.Core
         Result<Reservation> Add(Reservation reservation, Host host);
         List<Reservation> ViewReservationsByHost(Host host);
         List<Reservation> ViewByLocation(string state);
-        bool Update(int id, Reservation reservation);
-        Result<Reservation> Delete(int id);
+        Result<Reservation> Update(Host host, Reservation reservation);
+        Result<Reservation> Delete(int Id, Host host);
 
     
     }

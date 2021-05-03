@@ -8,6 +8,7 @@ namespace DontWreckHouse.Core.Models
 {
     public class Host
 	{
+		//changed guid Id into string Id
         public Guid Id {get; set;} 
 		public string LastName {get; set;} 
 		public string Email { get; set; } 

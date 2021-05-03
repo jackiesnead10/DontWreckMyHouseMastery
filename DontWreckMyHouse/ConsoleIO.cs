@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DontWreckHouse.BLL;
 using DontWreckHouse.Core.Models;
 
 namespace DontWreckMyHouse.UI
@@ -107,8 +108,59 @@ namespace DontWreckMyHouse.UI
                     return false;
                 }
                 PrintLine(INVALID_BOOL);
+
+            }
+
+        }
+        public Host GetHost(ReservationService reservationService)
+        {
+            Host host;
+            do
+            {
+                string hostEmail = ReadRequiredString("Please Enter Host's email Address: ");
+                host = reservationService.FindByEmail(hostEmail);
+                if (host == null)
+                {
+                    PrintLine("Host not found. Please enter valid email address.");
+                }
+             
+            } while (host == null);
+            return host;
+        }
+        public Guest GetGuest(ReservationService reservationService)
+        {
+            Guest guest;
+            do
+            {
+                string guestEmail = ReadRequiredString("Please Enter Guest's email Address: ");
+                guest = reservationService.FindGuestByEmail(guestEmail);
+                if (guest == null)
+                {
+                    PrintLine("Guest not found. Please enter valid email address.");
+                }
+
+            } while (guest == null);
+            return guest;
+        }
+        public int ReadId(string prompt, List<Reservation> reservations)
+        {
+            int result;
+            while (true)
+            {
+                if (int.TryParse(ReadRequiredString(prompt), out result))
+                {
+                    foreach(Reservation r in reservations)
+                    {
+                        if(r.Id == result)
+                        {
+                            return result;
+                        }
+                    }
+    
+                }
+
+                PrintLine(INVALID_NUMBER);
             }
         }
-
     }
 }

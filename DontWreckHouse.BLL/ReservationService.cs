@@ -12,17 +12,18 @@ namespace DontWreckHouse.BLL
         private readonly IHostFileRepository hostFileRepository;
         private readonly IGuestFileRepository guestFileRepository;
         private readonly IReservationsFileRepository reservationFileRepository;
+        private readonly ILogger fileLogger;
 
         // public ReservationService(BLL.Test.ReservationServiceDouble reservationServiceDouble)
         //  {
         //   }
 
-        public ReservationService(IReservationsFileRepository reservationFileRepository, IGuestFileRepository guestFileRepository, IHostFileRepository hostFileRepository)
+        public ReservationService(IReservationsFileRepository reservationFileRepository, IGuestFileRepository guestFileRepository, IHostFileRepository hostFileRepository, ILogger fileLogger )
         {
             this.hostFileRepository = hostFileRepository;
             this.guestFileRepository = guestFileRepository;
             this.reservationFileRepository = reservationFileRepository;
-
+            this.fileLogger = fileLogger;
         }
         public Host FindByEmail(string email)
         {
@@ -52,13 +53,13 @@ namespace DontWreckHouse.BLL
 
             foreach (Reservation r in reservations)
             {
-                if ((r.StartDate > startDate) && (r.StartDate < endDate))
+                if ((r.StartDate >= startDate) && (r.StartDate <= endDate))
                 {
                     Result<Reservation> result = new Result<Reservation>();
                     result.AddMessage("Error: date conflicts with another reservation");
                     return result;
                 }
-                if ((r.EndDate > startDate) && (r.EndDate < startDate))
+                if ((r.EndDate >= startDate) && (r.EndDate <= endDate))
                 {
                     Result<Reservation> result = new Result<Reservation>();
                     result.AddMessage("Error: date conflicts with another reservation");
@@ -87,21 +88,23 @@ namespace DontWreckHouse.BLL
 
             decimal total = 0.00M;
             DateTime track = startdate;
-          //  do
-           // {
-                while (track != enddate)
+            //  do
+            // {
+            do
+            {
+                if ((track.DayOfWeek == DayOfWeek.Friday) || (track.DayOfWeek == DayOfWeek.Saturday))
                 {
-                    if ((startdate.DayOfWeek == DayOfWeek.Friday) || (startdate.DayOfWeek == DayOfWeek.Saturday))
-                    {
-                        total += host.WeekendRate;
-                    }
-                    else
-                    {
-                        total += host.StandardRate;
-                    }
-                    track = track.AddDays(1);
+                    total += host.WeekendRate;
                 }
-           
+                else
+                {
+                    total += host.StandardRate;
+                }
+                track = track.AddDays(1);
+
+            } while (track != enddate);
+
+
 
             return total;
                   //  Result<Reservation> result = new Result<Reservation>();
@@ -193,5 +196,50 @@ namespace DontWreckHouse.BLL
 
 
         }
+        public Guest FindGuestById(int guestId)
+        {
+            return guestFileRepository.FindGuestById(guestId);
+       
+       }
+        public Result<Reservation> DeleteReservation(int Id, Host host)
+        {
+            return reservationFileRepository.Delete(Id ,host);
+
+        }
+        public Result<Reservation> UpdateReservation(Host host, Reservation reservation, List<Reservation> reservations)
+        {
+            foreach (Reservation r in reservations)
+            {
+                if ((r.StartDate >= reservation.StartDate) && (r.StartDate <= reservation.EndDate))
+                {
+                    Result<Reservation> result = new Result<Reservation>();
+                    result.AddMessage("Error: date conflicts with another reservation");
+                    return result;
+                }
+                if ((r.EndDate >= reservation.StartDate) && (r.EndDate <= reservation.EndDate))
+                {
+                    Result<Reservation> result = new Result<Reservation>();
+                    result.AddMessage("Error: date conflicts with another reservation");
+                    return result;
+                }
+            }
+
+            return reservationFileRepository.Update(host, reservation);
+        }
+        public List<Reservation> HostHasGuestReservation(Guest guest, List<Reservation> reservations)
+        {
+            List<Reservation> guestreservations = new List<Reservation>();
+            foreach (Reservation r in reservations)
+            {
+                if (r.GuestId == guest.GuestId)
+                {
+                    guestreservations.Add(r);
+                }
+                
+            }
+            return guestreservations;
+
+        }
+
     }
 }

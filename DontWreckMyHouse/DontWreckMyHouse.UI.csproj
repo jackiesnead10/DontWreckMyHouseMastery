@@ -6,9 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Ninject" Version="3.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DontWreckHouse.BLL\DontWreckHouse.BLL.csproj" />
     <ProjectReference Include="..\DontWreckHouse.Core\DontWreckHouse.Core.csproj" />
     <ProjectReference Include="..\DontWreckHouse.DAL\DontWreckHouse.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="dont-wreck-my-house-data\Logs\" />
   </ItemGroup>
 
 </Project>

@@ -2,6 +2,7 @@ using NUnit.Framework;
 using DontWreckHouse.Core.Models;
 using DontWreckHouse.DAL;
 using System.Collections.Generic;
+using DontWreckHouse.BLL.Test;
 
 namespace DontWreckHouse.DAL.Test
 {
@@ -9,17 +10,17 @@ namespace DontWreckHouse.DAL.Test
     {
 
 
-        const string SEED_FILE_PATH = @"C:\Users\Jacqueline Snead\source\repos\DontWreckMyHouse\DontWreckHouse.DAL.Test\Data\Guest-seed.csv";
+       const string SEED_FILE_PATH = @"C:\Users\Jacqueline Snead\source\repos\DontWreckMyHouse\DontWreckHouse.DAL.Test\Data\Guest-seed.csv";
         const string TEST_FILE_PATH = @"C:\Users\Jacqueline Snead\source\repos\DontWreckMyHouse\DontWreckHouse.DAL.Test\Data\Guest-data-test\guest-file.csv";
         const string TEST_DIR_PATH = @"C:\Users\Jacqueline Snead\source\repos\DontWreckMyHouse\DontWreckHouse.DAL.Test\Data\Guest-data-test\";
-        GuestFileRepository repo = new GuestFileRepository(TEST_FILE_PATH);
+        GuestFileRepositoryDouble repo;
 
         
 
         [SetUp]
         public void Setup()
         {
-            
+            repo = new GuestFileRepositoryDouble();
 
         }
 
@@ -29,14 +30,14 @@ namespace DontWreckHouse.DAL.Test
          
            List<Guest> all = repo.FindAll();
 
-            Assert.AreEqual(2, all.Count);
+            Assert.AreEqual(1, all.Count);
         }
         [Test]
         public void ShouldReadByEmail()
         {
-            Guest guest = repo.ViewByEmail("slomas0@mediafire.com");
+            Guest guest = repo.ViewByEmail("boat@boat.com");
 
-            Assert.AreEqual(guest.Email, "slomas0@mediafire.com");
+            Assert.AreEqual(guest.Email, "boat@boat.com");
         }
     
     }

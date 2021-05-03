@@ -11,7 +11,7 @@ namespace DontWreckHouse.BLL.Test
     public class GuestFileRepositoryDouble : IGuestFileRepository
     {
 
-        private readonly List<Guest> guest = new List<Guest>();
+        private readonly List<Guest> guests = new List<Guest>();
 
         public GuestFileRepositoryDouble()
         {
@@ -22,16 +22,17 @@ namespace DontWreckHouse.BLL.Test
             guest.Email = "boat@boat.com";
             guest.Phone = "909090909";
             guest.State = "Texas";
+            guests.Add(guest);
         }
         public Guest Add(Guest guest)
         {
-            
+            guests.Add(guest);
             return guest;
         }
 
         public List<Guest> FindAll()
         {
-            return new List<Guest>(guest);
+            return guests;
         }
 
         public Guest FindGuestById(int id)
@@ -39,14 +40,13 @@ namespace DontWreckHouse.BLL.Test
             return FindAll().FirstOrDefault(i => i.GuestId == id);
         }
 
-        public List<Guest> ViewByEmail(string email)
+        public Guest ViewByEmail(string email)
         {
-            throw new NotImplementedException();
+            Guest guest =  FindAll().FirstOrDefault(i => i.Email.Equals(email));
+            return guest;
+            //throw new NotImplementedException();
         }
 
-        Guest IGuestFileRepository.ViewByEmail(string email)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

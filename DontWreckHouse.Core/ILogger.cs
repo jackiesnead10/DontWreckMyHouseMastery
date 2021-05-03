@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace DontWreckHouse.Core
 {
-    class ILogger
+    public interface ILogger
     {
+        void Log(string log);
     }
 }

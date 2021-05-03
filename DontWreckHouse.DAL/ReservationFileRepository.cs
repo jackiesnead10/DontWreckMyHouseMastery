@@ -15,9 +15,13 @@ namespace DontWreckHouse.DAL
     {
         private readonly string filePath;
         private const string HEADER = "Id,StartDate,EndDate,GuestId,Total";
-        public ReservationFileRepository(string filePath)
+        private ILogger fileLogger;
+
+        public ReservationFileRepository(string filePath, ILogger fileLogger)
         {
             this.filePath = filePath;
+            this.fileLogger = fileLogger;
+
         }
 
         public List<Reservation> ViewReservationsByHost(Host host)
@@ -37,6 +41,7 @@ namespace DontWreckHouse.DAL
             }
             catch (IOException ex)
             {
+                fileLogger.Log(ex.ToString());
                 throw new RepositoryException("could not read items", ex);
             }
 
@@ -89,7 +94,37 @@ namespace DontWreckHouse.DAL
            
                 return result;
             }
+        public Result<Reservation> Delete(int Id, Host host)
+        {
+            if(host == null)
+            {
+                return null;
+            }
+            bool success = false;
+            List<Reservation> all = ViewReservationsByHost(host);
+            foreach (var r in from Reservation r in all
+                              where r.Id == Id
+                              select r)
+            {
+                success = all.Remove(r);
+                break;
+            }
 
+            Result<Reservation> result = new Result<Reservation>();
+            if (success == true)
+            {
+                Write(all, host);
+                return result;
+            }
+            else
+            {
+                result.AddMessage("Error: Reservation Not found!");
+                return result;
+            }
+
+            
+
+        }
         private void Write(List<Reservation> reservations, Host host)
         {
             var path = Path.Combine(filePath, host.Id + ".csv");
@@ -110,6 +145,7 @@ namespace DontWreckHouse.DAL
             }
             catch (IOException ex)
             {
+                fileLogger.Log(ex.ToString());
                 throw new RepositoryException("could not save reservations", ex);
             }
         }
@@ -124,15 +160,39 @@ namespace DontWreckHouse.DAL
                     reservation.Total);
                    
         }
-        public Result<Reservation> Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
+       
 
-        public bool Update(int id, Reservation reservation)
+        public Result<Reservation> Update(Host host, Reservation reservation)
         {
-            throw new NotImplementedException();
-        }
+            if (host == null)
+            {
+                return null;
+            }
+            bool success = false;
+            List<Reservation> all = ViewReservationsByHost(host);
+            foreach (var r in from Reservation r in all
+                              where r.Id == reservation.Id
+                              select r)
+            {
+                r.StartDate = reservation.StartDate;
+                r.EndDate = reservation.EndDate;
+                r.Total = reservation.Total;
+                success = true;
+                break;
+            }
+
+            Result<Reservation> result = new Result<Reservation>();
+            if (success == true)
+            {
+                Write(all, host);
+                return result;
+            }
+            else
+            {
+                result.AddMessage("Error: Reservation Not found!");
+                return result;
+            }
+        }       
 
      
 

@@ -11,6 +11,6 @@ namespace DontWreckHouse.Core
     {
         Host ViewByEmail(string email);
         List<Host> FindAll();
-        List<Host> ViewByLocation(string location);
+        
     }
 }

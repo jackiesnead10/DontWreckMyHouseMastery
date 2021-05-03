@@ -17,10 +17,14 @@ namespace DontWreckHouse.DAL
     {
         private const string HEADER = "id, first name, last name, state";
         private readonly string filePath;
+        private ILogger fileLogger;
 
-        public HostFileRepository(string filePath)
+
+        public HostFileRepository(string filePath, ILogger fileLogger)
         {
             this.filePath = filePath;
+            this.fileLogger = fileLogger;
+
         }
 
 
@@ -39,6 +43,7 @@ namespace DontWreckHouse.DAL
             }
             catch (IOException ex)
             {
+                fileLogger.Log(ex.ToString());
                 throw new RepositoryException("could not read Host Email", ex);
             }
             for (int i = 1; i < lines.Length; i++) // skip the header
@@ -83,9 +88,10 @@ namespace DontWreckHouse.DAL
             return FindAll().FirstOrDefault(i => i.Email.Equals(email));
         }
         
-        public List<Host> ViewByLocation(string location)
+        public List<Host> ViewByLocation(string state)
         {
-            throw new NotImplementedException();
+            //return FindAll().FirstOrDefault(i => i.State.Equals(state));
+            return null;
         }
     }
 }

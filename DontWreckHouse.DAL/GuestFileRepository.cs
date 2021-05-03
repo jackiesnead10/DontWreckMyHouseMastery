@@ -10,35 +10,24 @@ using System.Threading.Tasks;
 
 namespace DontWreckHouse.DAL
 {
-   public class GuestFileRepository : IGuestFileRepository
+   public class GuestFileRepository : IGuestFileRepository 
     {
        
         private readonly string filePath;
+        private ILogger fileLogger;
+        private string tEST_FILE_PATH;
 
-        public GuestFileRepository(string filePath)
+        public GuestFileRepository(string filePath, ILogger fileLogger)
         {
             this.filePath = filePath;
+            this.fileLogger = fileLogger;
         }
-        /*
-        public Guest Add(Guest guest)
+
+        public GuestFileRepository(string tEST_FILE_PATH)
         {
-            if (guest == null)
-            {
-                return null;
-            }
-
-            List<Guest> all = FindAll();
-
-            int nextId = (all.Count == 0 ? 0 : all.Max(i => i.GuestId)) + 1;
-
-            guest.GuestId = nextId;
-
-            all.Add(guest);
-            Write(all);
-
-            return guest;
+            this.tEST_FILE_PATH = tEST_FILE_PATH;
         }
-        */
+
         public List<Guest> FindAll()
         {
             var items = new List<Guest>();
@@ -54,6 +43,7 @@ namespace DontWreckHouse.DAL
             }
             catch (IOException ex)
             {
+                fileLogger.Log(ex.ToString());
                 throw new RepositoryException("could not read items", ex);
             }
 
@@ -68,7 +58,7 @@ namespace DontWreckHouse.DAL
             }
             return items;
         }
-        //Use of Linq query
+        
         public Guest FindById(int id)
         {
             //List<Guest> items = FindAll();
